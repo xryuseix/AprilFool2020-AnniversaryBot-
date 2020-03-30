@@ -26,7 +26,8 @@ function getWeeklySchedule(to, userMessage) {
   
   const startDate = new Date();
   const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 7);
+  startDate.setDate(startDate.getDate() - 1);
+  endDate.setDate(endDate.getDate() + 6);
   
   const calenderId = PropertiesService.getScriptProperties().getProperty('CALENDAR_ID');
   const calendar = CalendarApp.getCalendarById(calenderId); 
@@ -44,7 +45,7 @@ function getWeeklySchedule(to, userMessage) {
 function dailyCheck() {
   const startDate = new Date();
   const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 1);
+  startDate.setDate(startDate.getDate() - 1);
   
   const calenderId = PropertiesService.getScriptProperties().getProperty('CALENDAR_ID');
   const calendar = CalendarApp.getCalendarById(calenderId); 
@@ -124,4 +125,52 @@ function linePost(to, messages) {
 
 function getUserId(e) {
     logging(e.postData.getDataAsString());
+}
+                
+function deleteSchedule() {
+  
+  let anniversaryDates = {};
+  const today = new Date();
+  anniversaryDates[`当日`] = today; // 記念日当日
+  
+  for(var i = 1; i <= 9; i++) { // 記念日から100日,200日...900日後
+    let tempDate = new Date();
+    tempDate.setDate(tempDate.getDate() + i*100);
+    anniversaryDates[`${i*100}日記念`] = tempDate;
+  }
+  
+  for(var i = 1; i <= 11; i++) { // 記念日から1ヶ月,2ヶ月...11ヶ月後
+    let tempDate = new Date();
+    tempDate.setMonth(tempDate.getMonth() + i);
+    anniversaryDates[`${i}ヶ月記念`] = tempDate;
+  }
+  
+  for(var i = 1; i <= 9; i++) { // 記念日から1年,2年...9年後
+    let tempDate = new Date();
+    tempDate.setFullYear(tempDate.getFullYear() + i);
+    anniversaryDates[`${i}年記念`] = tempDate;
+  }
+  
+  for(var i = 1; i <= 5; i++) { // 記念日から10年,20年...50年後
+    let tempDate = new Date();
+    tempDate.setFullYear(tempDate.getFullYear() + i*10);
+    anniversaryDates[`${i*10}年記念`] = tempDate;
+  }
+  
+  Object.keys(anniversaryDates).forEach(function(key) {
+    let date = this[key];
+    deleteEventsForDay(date);
+  }, anniversaryDates);
+}
+
+function deleteEventsForDay(target_date) {
+
+  const calenderId = PropertiesService.getScriptProperties().getProperty('CALENDAR_ID');
+  var calendar = CalendarApp.getCalendarById(calenderId);
+  var offset = 0;
+  target_date.setDate(target_date.getDate() + offset);
+  var events = calendar.getEventsForDay(target_date);
+  events.forEach(function(e) {
+    e.deleteEvent();
+  });
 }
