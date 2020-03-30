@@ -1,53 +1,43 @@
 # Project Title
 
-<!-- プロジェクトの概要を 1 段落でここに書きます -->
+AnniversaryBot
+
+恋人ができたそこのあなた！○○ヶ月記念日とかすぐ忘れせんか？
+なので記念日になったら自動で通知してくれるLINEbotを作りました！
 
 ## Getting Started / スタートガイド
 
-<!-- プロジェクトを複製してローカル端末で実行し、開発や検証ができるまでの手順を説明します。実際のシステムにプロジェクトをデプロイする方法については、デプロイの項目を参照してください。 -->
-
 ### Prerequisites / 必要条件
 
-<!-- プロジェクトを走らせるためにはどんなソフトウェアが必要で、それらをどのようにインストールするか -->
-
-<!--
-```
-$ install ソフトウェア1
-$ install ソフトウェア2
-```
--->
+GAS上で実行します
+LINE developer アカウントが必要です．
 
 ### Installing / インストール
 
-<!-- 動作する開発環境の構築方法を段階的に例示します -->
-
-<!--
 ```
-$ コマンド1
-$ コマンド2
+$ git clone https://github.com/xryuseix/AprilFool2020-AnniversaryBot-
 ```
--->
 
-<!-- それから -->
+その後，当ソースコードをGAS上に貼り付けます．webhookの設定なども行ってください．
+その後，以下の環境変数を設定します．
 
-<!--
 ```
-上の通りに打つと出力されるログの例
+CALENDAR_ID : GoogleカレンダーのID
+XRYUSEIX_USER_ID : 自分のLINEのID
+LINE_ACCESS_TOKEN : LINEbotのアクセストークン
 ```
--->
 
-## Deployment / デプロイ
+その後，`dailyCheck`関数を定期実行させます．
 
-<!-- 実際のシステムにデプロイするための補足的な説明を行います -->
 
-## Built With / 協働するシステムのリスト
+## How to use / 使用方法
 
-<!-- 協働するシステムのリスト
+LINEで以下のコマンドを使用します
 
-* [Dropwizard](URL) - 使用した web フレームワーク
-* [Maven]URL - 依存関係管理ソフトウェア
-* [ROME](URL) - 使用した RSS フィード生成
--->
+```
+登録 XXX : XXXを記念日として登録します．登録されるのは(100,200...900日),(1,2,...11ヶ月),(1,2,...9年),(10,20,...50年)記念です．
+今週 : 今週の記念日一覧を表示します．
+```
 
 ## Contributing / コントリビューション
 
@@ -58,16 +48,3 @@ Please read [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for details on our code
 ## Authors / 著者
 
 * **[xryuseix](https://github.com/xryuseix)**
-
-このプロジェクトへの貢献者のリストもご覧ください。
-
-See also the list of [contributors](https://github.com/xryuseix/project/contributors) who participated in this project.
-<!-- 上の"project"にプロジェクト名を入れるの忘れずに！！！！！ -->
-
-## Acknowledgments / 謝辞
-
-<!--
-* コードを書いた人への感謝
-* 何からインスピレーションを得たか
-* その他
--->
