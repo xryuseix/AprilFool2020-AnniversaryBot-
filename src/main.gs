@@ -4,25 +4,25 @@ const ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_A
 function doPost(e) {
   
   // WebHookで受信した応答用Token
-  const replyToken = JSON.parse(e.postData.contents).events[0].replyToken;
+  const to = JSON.parse(e.postData.contents).events[0].source.userId;
   // ユーザーのメッセージを取得
   const userMessage = JSON.parse(e.postData.contents).events[0].message.text;
 
   if(userMessage == '今週') {
-    getWeeklySchedule(replyToken, userMessage);
+    getWeeklySchedule(to, userMessage);
   } else if(userMessage.substr(0,2) == '登録') {
     if(userMessage.length > 3) {
-      registerSchedule(replyToken, userMessage.substr(3));
+      registerSchedule(to, userMessage.substr(3));
     } else {
-      linePost(replyToken, [{'type': 'text', 'text':'登録コマンドは後ろにスペースとタイトルを入れてください'}]);
+      linePost(to, [{'type': 'text', 'text':'登録コマンドは後ろにスペースとタイトルを入れてください'}]);
     }
   } else {
-    errorCommand(replyToken, userMessage);
+    errorCommand(to, userMessage);
   }
   return ContentService.createTextOutput(JSON.stringify({'content': 'post ok'})).setMimeType(ContentService.MimeType.JSON);
 }
 
-function getWeeklySchedule(replyToken, userMessage) {
+function getWeeklySchedule(to, userMessage) {
   
   const startDate = new Date();
   const endDate = new Date();
@@ -31,18 +31,37 @@ function getWeeklySchedule(replyToken, userMessage) {
   const calenderId = PropertiesService.getScriptProperties().getProperty('CALENDAR_ID');
   const calendar = CalendarApp.getCalendarById(calenderId); 
   const events = calendar.getEvents(startDate, endDate);
-  messages = [{'type': 'text', 'text':`今週の記念日の個数 : ${Object.keys(events).length}`}];
+  let messages = [{'type': 'text', 'text':`今週の記念日の個数 : ${Object.keys(events).length}`}];
 
   for(var i = 0; i < Object.keys(events).length; i++) {
-    const message = `日にち : ${events[i].getStartTime()}\nタイトル : ${events[i].getTitle()}`;
+    const dateString = Utilities.formatDate(events[i].getStartTime(), 'JST', 'yyyy/MM/dd');
+    const message = `日にち : ${dateString}\nタイトル : ${events[i].getTitle()}`;
     messages.push({'type': 'text', 'text':message});
   }
-  linePost(replyToken, messages);
-
-
+  linePost(to, messages);
 }
 
-function registerSchedule(replyToken, title) {
+function dailyCheck() {
+  const startDate = new Date();
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 1);
+  
+  const calenderId = PropertiesService.getScriptProperties().getProperty('CALENDAR_ID');
+  const calendar = CalendarApp.getCalendarById(calenderId); 
+  const events = calendar.getEvents(startDate, endDate);
+  
+  if(Object.keys(events).length > 0) {
+    let messages = [{'type': 'text', 'text':'本日は記念日です！'}];
+    for(var i = 0; i < Object.keys(events).length; i++) {
+      const message = `タイトル : ${events[i].getTitle()}`;
+      messages.push({'type': 'text', 'text':message});
+    }
+    const usererId = PropertiesService.getScriptProperties().getProperty('XRYUSEIX_USER_ID');
+    linePost(usererId, messages)
+  }
+}
+
+function registerSchedule(to, title) {
   
   let anniversaryDates = {};
   const today = new Date();
@@ -77,18 +96,18 @@ function registerSchedule(replyToken, title) {
     let date = this[key];
     createEvents(title, date);
   }, anniversaryDates);
-  linePost(replyToken, [{'type': 'text', 'text':`${title}の登録が完了しました！`}]);
+  linePost(to, [{'type': 'text', 'text':`${title}の登録が完了しました！`}]);
 }
 
-function errorCommand(replyToken, userMessage) {
-  linePost(replyToken, [{'type': 'text', 'text':`\"${userMessage}\"というコマンドは存在しません`}]);
+function errorCommand(to, userMessage) {
+  linePost(to, [{'type': 'text', 'text':`\"${userMessage}\"というコマンドは存在しません`}]);
   
 }
 
-function linePost(replyToken, messages) {
-  
+function linePost(to, messages) {
+
   // 応答メッセージ用のAPI URL
-  const url = 'https://api.line.me/v2/bot/message/reply';
+  const url = 'https://api.line.me/v2/bot/message/push';
    
   UrlFetchApp.fetch(url, {
     'headers': {
@@ -97,8 +116,12 @@ function linePost(replyToken, messages) {
     },
     'method': 'post',
     'payload': JSON.stringify({
-      'replyToken': replyToken,
+      'to': to,
       'messages': messages,
     }),
   });
+}
+
+function getUserId(e) {
+    logging(e.postData.getDataAsString());
 }

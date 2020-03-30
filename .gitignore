@@ -23,3 +23,4 @@ setting.json
 *.swp
 
 # Custom files
+res.json
