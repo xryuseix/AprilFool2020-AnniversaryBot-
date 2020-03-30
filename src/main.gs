@@ -1,5 +1,5 @@
 // LINE developersのメッセージ送受信設定に記載のアクセストークン
-var ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_ACCESS_TOKEN');
+const ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_ACCESS_TOKEN');
 
 function doPost(e) {
   
@@ -11,10 +11,10 @@ function doPost(e) {
   if(userMessage == '今週') {
     getWeeklySchedule(replyToken, userMessage);
   } else if(userMessage.substr(0,2) == '登録') {
-    if(userMessage.length() > 3) {
+    if(userMessage.length > 3) {
       registerSchedule(replyToken, userMessage.substr(3));
     } else {
-      linePost(replyToken, '登録コマンドは後ろにスペースとタイトルを入れてください');
+      linePost(replyToken, [{'type': 'text', 'text':'登録コマンドは後ろにスペースとタイトルを入れてください'}]);
     }
   } else {
     errorCommand(replyToken, userMessage);
@@ -23,7 +23,23 @@ function doPost(e) {
 }
 
 function getWeeklySchedule(replyToken, userMessage) {
-  linePost(replyToken, 'getWeeklySchedule');
+  
+  const startDate = new Date();
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 7);
+  
+  const calenderId = PropertiesService.getScriptProperties().getProperty('CALENDAR_ID');
+  const calendar = CalendarApp.getCalendarById(calenderId); 
+  const events = calendar.getEvents(startDate, endDate);
+  messages = [{'type': 'text', 'text':`今週の記念日の個数 : ${Object.keys(events).length}`}];
+
+  for(var i = 0; i < Object.keys(events).length; i++) {
+    const message = `日にち : ${events[i].getStartTime()}\nタイトル : ${events[i].getTitle()}`;
+    messages.push({'type': 'text', 'text':message});
+  }
+  linePost(replyToken, messages);
+
+
 }
 
 function registerSchedule(replyToken, title) {
@@ -57,23 +73,23 @@ function registerSchedule(replyToken, title) {
   }
   
   Object.keys(anniversaryDates).forEach(function(key) {
-    var title = key;
-    var date = this[key];
+    let title = key;
+    let date = this[key];
     createEvents(title, date);
   }, anniversaryDates);
-  linePost(replyToken, `${title}の登録が完了しました！`);
+  linePost(replyToken, [{'type': 'text', 'text':`${title}の登録が完了しました！`}]);
 }
 
 function errorCommand(replyToken, userMessage) {
-  linePost(replyToken, `\"${userMessage}\"というコマンドは存在しません`);
+  linePost(replyToken, [{'type': 'text', 'text':`\"${userMessage}\"というコマンドは存在しません`}]);
   
 }
 
-function linePost(replyToken, message) {
+function linePost(replyToken, messages) {
   
   // 応答メッセージ用のAPI URL
   const url = 'https://api.line.me/v2/bot/message/reply';
-  
+   
   UrlFetchApp.fetch(url, {
     'headers': {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -82,10 +98,7 @@ function linePost(replyToken, message) {
     'method': 'post',
     'payload': JSON.stringify({
       'replyToken': replyToken,
-      'messages': [{
-        'type': 'text',
-        'text': message,
-      }],
+      'messages': messages,
     }),
   });
 }
