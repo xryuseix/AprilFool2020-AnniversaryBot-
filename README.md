@@ -5,6 +5,8 @@ AnniversaryBot
 恋人ができたそこのあなた！○○ヶ月記念日とかすぐ忘れせんか？
 なので記念日になったら自動で通知してくれるLINEbotを作りました！
 
+![demo](./images/demo2x.gif)
+
 ## Getting Started / スタートガイド
 
 ### Prerequisites / 必要条件
