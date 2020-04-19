@@ -127,32 +127,32 @@ function getUserId(e) {
     logging(e.postData.getDataAsString());
 }
                 
-function deleteSchedule() {
-  
+function deleteSchedule(day) {
+  day = '2020/3/31';
   let anniversaryDates = {};
-  const today = new Date();
-  anniversaryDates[`当日`] = today; // 記念日当日
+  const today = new Date(day);
+  anniversaryDates['当日'] = today; // 記念日当日
   
   for(var i = 1; i <= 9; i++) { // 記念日から100日,200日...900日後
-    let tempDate = new Date();
+    let tempDate = new Date(day);
     tempDate.setDate(tempDate.getDate() + i*100);
     anniversaryDates[`${i*100}日記念`] = tempDate;
   }
   
   for(var i = 1; i <= 11; i++) { // 記念日から1ヶ月,2ヶ月...11ヶ月後
-    let tempDate = new Date();
+    let tempDate = new Date(day);
     tempDate.setMonth(tempDate.getMonth() + i);
     anniversaryDates[`${i}ヶ月記念`] = tempDate;
   }
   
   for(var i = 1; i <= 9; i++) { // 記念日から1年,2年...9年後
-    let tempDate = new Date();
+    let tempDate = new Date(day);
     tempDate.setFullYear(tempDate.getFullYear() + i);
     anniversaryDates[`${i}年記念`] = tempDate;
   }
   
   for(var i = 1; i <= 5; i++) { // 記念日から10年,20年...50年後
-    let tempDate = new Date();
+    let tempDate = new Date(day);
     tempDate.setFullYear(tempDate.getFullYear() + i*10);
     anniversaryDates[`${i*10}年記念`] = tempDate;
   }
